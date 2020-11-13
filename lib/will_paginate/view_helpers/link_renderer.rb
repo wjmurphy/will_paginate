@@ -71,7 +71,7 @@ module WillPaginate
         if page
           li(text, page, :class => classname)
         else
-          tag(:li, "<span class='page-item'>#{text}</span>", :class => classname + ' disabled')
+          tag(:li, "<span class='page-link'>#{text}</span>", :class => classname + ' disabled')
         end
       end
 

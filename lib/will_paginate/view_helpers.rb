@@ -21,7 +21,9 @@ module WillPaginate
 
     # default view options
     self.pagination_options = Deprecation::Hash.new \
-      :class          => 'pagination',
+      :ul_class       => 'pagination',
+      :li_class       => "page-item",
+      :a_class        => "page-link",
       :previous_label => nil,
       :next_label     => nil,
       :inner_window   => 4, # links around the current page
@@ -42,7 +44,7 @@ module WillPaginate
 
     # Returns HTML representing page links for a WillPaginate::Collection-like object.
     # In case there is no more than one page in total, nil is returned.
-    # 
+    #
     # ==== Options
     # * <tt>:class</tt> -- CSS class name for the generated DIV (default: "pagination")
     # * <tt>:previous_label</tt> -- default: "« Previous"
@@ -61,7 +63,7 @@ module WillPaginate
     #
     # All options not recognized by will_paginate will become HTML attributes on the container
     # element for pagination links (the DIV). For example:
-    # 
+    #
     #   <%= will_paginate @posts, :style => 'color:blue' %>
     #
     # will result in:

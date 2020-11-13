@@ -8,7 +8,7 @@ module WillPaginate
     # This class does the heavy lifting of actually building the pagination
     # links. It is used by +will_paginate+ helper internally.
     class LinkRenderer < LinkRendererBase
-      
+
       # * +collection+ is a WillPaginate::Collection instance or any other object
       #   that conforms to that API
       # * +options+ are forwarded from +will_paginate+ view helper
@@ -28,7 +28,7 @@ module WillPaginate
             page_number(item) :
             send(item)
         end.join(@options[:link_separator])
-        
+
         @options[:container] ? html_container(html) : html
       end
 
@@ -40,56 +40,81 @@ module WillPaginate
           :"aria-label" => @template.will_paginate_translate(:container_aria_label) { 'Pagination' }
         }.update @options.except(*(ViewHelpers.pagination_options.keys + [:renderer] - [:class]))
       end
-      
+
     protected
-    
+
       def page_number(page)
         aria_label = @template.will_paginate_translate(:page_aria_label, :page => page.to_i) { "Page #{page}" }
         if page == current_page
-          tag(:em, page, :class => 'current', :"aria-label" => aria_label, :"aria-current" => 'page')
+          li_active(page, page, :rel => rel_value(page), :"aria-label" => aria_label)
         else
-          link(page, page, :rel => rel_value(page), :"aria-label" => aria_label)
+          li(page, page, :rel => rel_value(page), :"aria-label" => aria_label)
         end
       end
-      
+
       def gap
         text = @template.will_paginate_translate(:page_gap) { '&hellip;' }
-        %(<span class="gap">#{text}</span>)
+        %(<li class="page-item">#{text}</li>)
       end
-      
+
       def previous_page
         num = @collection.current_page > 1 && @collection.current_page - 1
-        previous_or_next_page(num, @options[:previous_label], 'previous_page')
+        previous_or_next_page(num, @options[:previous_label], 'page-item')
       end
-      
+
       def next_page
         num = @collection.current_page < total_pages && @collection.current_page + 1
-        previous_or_next_page(num, @options[:next_label], 'next_page')
+        previous_or_next_page(num, @options[:next_label], 'page-item')
       end
-      
+
       def previous_or_next_page(page, text, classname)
         if page
-          link(text, page, :class => classname)
+          li(text, page, :class => classname)
         else
-          tag(:span, text, :class => classname + ' disabled')
+          tag(:li, text, :class => classname + ' disabled')
         end
       end
-      
+
       def html_container(html)
-        tag(:div, html, container_attributes)
+        tag(:ul, html, container_attributes)
       end
-      
+
       # Returns URL params for +page_link_or_span+, taking the current GET params
       # and <tt>:params</tt> option into account.
       def url(page)
         raise NotImplementedError
       end
-      
+
     private
 
       def param_name
         @options[:param_name].to_s
       end
+
+      def ul(text, target, attributes = {})
+
+      end
+
+      def li(text, target, attributes = {})
+        if target.is_a?(Integer)
+          attributes[:rel] = rel_value(target)
+          target = url(target)
+        end
+        attributes[:href] = target
+        li_attributes[:class] = "page-item"
+        tag(:li, link(text, target, attributes), li_attributes)
+      end
+
+      def li_active(text, target, attributes = {})
+        if target.is_a?(Integer)
+          attributes[:rel] = rel_value(target)
+          target = url(target)
+        end
+        attributes[:href] = target
+        li_attributes[:class] = "page-item active"
+        tag(:li, link(text, target, attributes), li_attributes)
+      end
+
 
       def link(text, target, attributes = {})
         if target.is_a?(Integer)
@@ -97,9 +122,10 @@ module WillPaginate
           target = url(target)
         end
         attributes[:href] = target
+        attributes[:class] = "page-link"
         tag(:a, text, attributes)
       end
-      
+
       def tag(name, value, attributes = {})
         string_attributes = attributes.inject('') do |attrs, pair|
           unless pair.last.nil?

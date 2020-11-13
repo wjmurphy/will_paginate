@@ -95,7 +95,7 @@ module WillPaginate
 
       end
 
-      def li(text, target, attributes = {})
+      def li(text, target, attributes = {}, li_attributes = {})
         if target.is_a?(Integer)
           attributes[:rel] = rel_value(target)
           target = url(target)
@@ -105,7 +105,7 @@ module WillPaginate
         tag(:li, link(text, target, attributes), li_attributes)
       end
 
-      def li_active(text, target, attributes = {})
+      def li_active(text, target, attributes = {}, li_attributes = {})
         if target.is_a?(Integer)
           attributes[:rel] = rel_value(target)
           target = url(target)
